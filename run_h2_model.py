@@ -52,7 +52,7 @@ def main():
     missing_files = [f for f in required_files if not os.path.exists(f)]
     
     if missing_files:
-        print("❌ ERROR: Required files not found:")
+        print(" ERROR: Required files not found:")
         for f in missing_files:
             print(f"   - {f}")
         print()
@@ -79,7 +79,7 @@ def main():
                 config = scenarios[args.scenario]
                 print(f"✓ Using {args.scenario} scenario configuration")
             else:
-                print(f"❌ ERROR: Scenario '{args.scenario}' not found")
+                print(f"ERROR: Scenario '{args.scenario}' not found")
                 return 1
                 
         # Override specific parameters from command line
@@ -103,7 +103,7 @@ def main():
         
         if model:
             print("\n" + "="*60)
-            print("✅ ANALYSIS COMPLETED SUCCESSFULLY!")
+            print(" ANALYSIS COMPLETED SUCCESSFULLY!")
             print("="*60)
             print()
             print("Results have been saved to the output directory.")
@@ -111,18 +111,18 @@ def main():
             print()
             return 0
         else:
-            print("\n❌ ANALYSIS FAILED")
+            print("\n ANALYSIS FAILED")
             print("Check error messages above for details.")
             return 1
             
     except ImportError as e:
-        print(f"❌ ERROR: Missing dependencies: {e}")
+        print(f" ERROR: Missing dependencies: {e}")
         print()
         print("Please ensure all required modules are installed:")
         print("   pip install geopandas pandas numpy shapely matplotlib")
         return 1
     except Exception as e:
-        print(f"❌ ERROR: {e}")
+        print(f" ERROR: {e}")
         import traceback
         traceback.print_exc()
         return 1
