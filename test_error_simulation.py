@@ -83,10 +83,10 @@ class TestDataQualityIssues(unittest.TestCase):
         try:
             model.routes = routes_wrong_crs
             model.routes = model.routes.to_crs("EPSG:3310")
-            print("✓ Model handled incorrect CRS and reprojected successfully")
+            print("Pass: Model handled incorrect CRS and reprojected successfully")
             success = success and True
         except Exception as e:
-            print(f"✗ Model failed with wrong CRS: {e}")
+            print(f"Flag: Model failed with wrong CRS: {e}")
             success = False
             
         return success
@@ -162,19 +162,19 @@ class TestDataQualityIssues(unittest.TestCase):
                 except Exception:
                     invalid_count += 1
                     
-            print(f"✓ Processed {len(problematic_data)} geometries")
-            print(f"✓ Found {len(valid_geometries)} valid geometries")
-            print(f"✓ Identified {invalid_count} invalid geometries")
+            print(f"Processed {len(problematic_data)} geometries")
+            print(f"Found {len(valid_geometries)} valid geometries")
+            print(f"Identified {invalid_count} invalid geometries")
             
             # Clean dataset
             if valid_geometries:
                 model.routes = model.routes.loc[valid_geometries]
-                print(f"✓ Cleaned dataset to {len(model.routes)} valid geometries")
+                print(f"Pass: Cleaned dataset to {len(model.routes)} valid geometries")
                 
             return True
             
         except Exception as e:
-            print(f"✗ Geometry validation failed: {e}")
+            print(f"Flag: Geometry validation failed: {e}")
             return False
             
     def test_missing_attribute_data(self):
@@ -228,7 +228,7 @@ class TestDataQualityIssues(unittest.TestCase):
             missing_columns = [col for col in required_columns if col not in model.routes.columns]
             
             if missing_columns:
-                print(f"✓ Detected missing columns: {missing_columns}")
+                print(f" Detected missing columns: {missing_columns}")
                 
                 # Fill missing columns with defaults or estimates
                 for col in missing_columns:
@@ -238,16 +238,16 @@ class TestDataQualityIssues(unittest.TestCase):
                         for alt_name in alt_names:
                             if alt_name in model.routes.columns:
                                 model.routes[col] = model.routes[alt_name]
-                                print(f"✓ Mapped {alt_name} to {col}")
+                                print(f" Mapped {alt_name} to {col}")
                                 break
                         else:
                             model.routes[col] = 1000  # Default value
-                            print(f"✓ Filled {col} with default value")
+                            print(f" Filled {col} with default value")
                     else:
                         # Estimate directional flow as half of total
                         if 'tot_truck_aadt' in model.routes.columns:
                             model.routes[col] = model.routes['tot_truck_aadt'] / 2
-                            print(f"✓ Estimated {col} from total flow")
+                            print(f" Estimated {col} from total flow")
                         else:
                             model.routes[col] = 500  # Default
                             
@@ -263,9 +263,9 @@ class TestDataQualityIssues(unittest.TestCase):
                         if pd.isna(median_value):
                             median_value = 1000  # Default if all values are invalid
                         model.routes[col].fillna(median_value, inplace=True)
-                        print(f"✓ Filled invalid values in {col} with median: {median_value}")
+                        print(f" Filled invalid values in {col} with median: {median_value}")
                         
-            print(f"✓ Cleaned dataset has {len(model.routes)} routes with valid attributes")
+            print(f"Pass: Cleaned dataset has {len(model.routes)} routes with valid attributes")
             return True
             
         except Exception as e:
@@ -340,16 +340,16 @@ class TestDataQualityIssues(unittest.TestCase):
                 
                 if x_ratio > 10 or x_ratio < 0.1 or y_ratio > 10 or y_ratio < 0.1:
                     inconsistent_indices.append(idx)
-                    print(f"  ⚠ Row {idx}: Inconsistent scale (x_ratio: {x_ratio:.2f}, y_ratio: {y_ratio:.2f})")
+                    print(f"   Row {idx}: Inconsistent scale (x_ratio: {x_ratio:.2f}, y_ratio: {y_ratio:.2f})")
                     
             if inconsistent_indices:
-                print(f"✓ Identified {len(inconsistent_indices)} geometries with inconsistent scales")
-                # In a real implementation, you might transform or exclude these
+                print(f" Identified {len(inconsistent_indices)} geometries with inconsistent scales")
+                #To-Do: implement transformation or exclusion of inconsistent indices
                 
             return True
             
         except Exception as e:
-            print(f"✗ Spatial unit validation failed: {e}")
+            print(f"Flag: Spatial unit validation failed: {e}")
             return False
             
     def test_extreme_traffic_values(self):
@@ -415,7 +415,7 @@ class TestDataQualityIssues(unittest.TestCase):
                 upper_bound = stats['q75'] + 1.5 * iqr
                 
                 outliers = valid_traffic[(valid_traffic < lower_bound) | (valid_traffic > upper_bound)]
-                print(f"✓ Outliers detected: {len(outliers)} values outside [{lower_bound:.0f}, {upper_bound:.0f}]")
+                print(f" Outliers detected: {len(outliers)} values outside [{lower_bound:.0f}, {upper_bound:.0f}]")
                 
                 # Apply data cleaning rules
                 cleaned_traffic = traffic_values.copy()
@@ -424,28 +424,28 @@ class TestDataQualityIssues(unittest.TestCase):
                 negative_mask = cleaned_traffic < 0
                 if negative_mask.any():
                     cleaned_traffic[negative_mask] = 0
-                    print(f"✓ Set {negative_mask.sum()} negative values to zero")
+                    print(f"Pass: Set {negative_mask.sum()} negative values to zero")
                 
                 # Cap extremely high values
                 cap_value = stats['q75'] + 3 * iqr  # 3 IQR above Q3
                 high_mask = cleaned_traffic > cap_value
                 if high_mask.any():
                     cleaned_traffic[high_mask] = cap_value
-                    print(f"✓ Capped {high_mask.sum()} extreme values at {cap_value:.0f}")
+                    print(f"Pass: Capped {high_mask.sum()} extreme values at {cap_value:.0f}")
                 
                 # Fill null values with median
                 null_mask = cleaned_traffic.isna()
                 if null_mask.any():
                     cleaned_traffic[null_mask] = stats['median']
-                    print(f"✓ Filled {null_mask.sum()} null values with median")
+                    print(f"Pass: Filled {null_mask.sum()} null values with median")
                 
                 model.routes['tot_truck_aadt'] = cleaned_traffic
-                print(f"✓ Applied data cleaning to traffic values")
+                print(f"Pass: Applied data cleaning to traffic values")
                 
             return True
             
         except Exception as e:
-            print(f"✗ Traffic value validation failed: {e}")
+            print(f"Flag: Traffic value validation failed: {e}")
             return False
 
 
@@ -504,16 +504,16 @@ class TestSystemFailureSimulation(unittest.TestCase):
                     # Test spatial operations
                     distances = model.candidates.geometry.distance(Point(-1800000, 750000))
                     closest_idx = distances.idxmin()
-                    print(f"  ✓ Spatial operations completed, closest candidate: {closest_idx}")
+                    print(f"  Pass: Spatial operations completed, closest candidate: {closest_idx}")
                     
                 # Simulate memory cleanup
                 if memory_mb > 1000:  # If using more than 1GB
-                    print(f"  ⚠ High memory usage detected: {memory_mb:.1f}MB")
+                    print(f"  Flag: High memory usage detected: {memory_mb:.1f}MB")
                     # Cleanup large attributes
                     for col in ['large_data', 'text_data', 'metadata']:
                         if col in model.candidates.columns:
                             del model.candidates[col]
-                    print(f"  ✓ Cleaned up memory-intensive columns")
+                    print(f"  Pass: Cleaned up memory-intensive columns")
                     
             except MemoryError:
                 print(f"  ✗ Memory error at size {size}")
@@ -546,9 +546,9 @@ class TestSystemFailureSimulation(unittest.TestCase):
         try:
             nonexistent_dir = os.path.join(self.temp_dir, "nonexistent", "subdir")
             model.export_results(nonexistent_dir)
-            print("✓ Model handled non-existent directory (created it)")
+            print("Pass: Model handled non-existent directory (created it)")
         except Exception as e:
-            print(f"⚠ Non-existent directory error: {e}")
+            print(f"Flag: Non-existent directory error: {e}")
             error_scenarios.append("nonexistent_directory")
             
         # 2. Test writing to read-only location (simulate)
@@ -561,11 +561,11 @@ class TestSystemFailureSimulation(unittest.TestCase):
                 os.chmod(readonly_dir, 0o444)  # Read-only
                 
             model.export_results(readonly_dir)
-            print("⚠ Model wrote to read-only directory (permissions may not be enforced)")
+            print("Flag: Model wrote to read-only directory (permissions may not be enforced)")
         except PermissionError:
-            print("✓ Model properly handled permission error")
+            print("Pass: Model properly handled permission error")
         except Exception as e:
-            print(f"⚠ Unexpected error with read-only directory: {e}")
+            print(f"Flag: Unexpected error with read-only directory: {e}")
             error_scenarios.append("permission_error")
         finally:
             # Restore permissions for cleanup
@@ -580,12 +580,12 @@ class TestSystemFailureSimulation(unittest.TestCase):
             long_path = os.path.join(self.temp_dir, "x" * 200, "very_long_directory_name")
             os.makedirs(long_path, exist_ok=True)
             model.export_results(long_path)
-            print("✓ Model handled long file paths")
+            print("Pass: Model handled long file paths")
         except OSError as e:
-            print(f"⚠ Long path error: {e}")
+            print(f"Flag: Long path error: {e}")
             error_scenarios.append("long_path")
         except Exception as e:
-            print(f"⚠ Unexpected long path error: {e}")
+            print(f"Flag: Unexpected long path error: {e}")
             
         # 4. Test file corruption simulation
         try:
@@ -600,9 +600,9 @@ class TestSystemFailureSimulation(unittest.TestCase):
             # Try to read corrupted file
             try:
                 corrupt_data = gpd.read_file(test_file)
-                print("⚠ Corrupted file was read successfully (unexpected)")
+                print("Flag: Corrupted file was read successfully (unexpected)")
             except Exception:
-                print("✓ Model properly detected corrupted file")
+                print("Pass: Model properly detected corrupted file")
                 
         except Exception as e:
             print(f"⚠ File corruption test error: {e}")
@@ -639,11 +639,11 @@ class TestSystemFailureSimulation(unittest.TestCase):
             if hasattr(model, 'optimize_portfolio'):
                 result = model.optimize_portfolio(budget=impossible_budget, n_stations=5)
                 if result is None or (hasattr(result, '__len__') and len(result) == 0):
-                    print("✓ Model handled infeasible problem gracefully")
+                    print("Pass: Model handled infeasible problem gracefully")
                 else:
-                    print("⚠ Model returned result for infeasible problem")
+                    print("Flag: Model returned result for infeasible problem")
             else:
-                print("⚠ No optimize_portfolio method available")
+                print("Flag: No optimize_portfolio method available")
                 
         except Exception as e:
             print(f"⚠ Infeasible problem error: {e}")
@@ -666,13 +666,13 @@ class TestSystemFailureSimulation(unittest.TestCase):
                 
                 try:
                     result = model.optimize_portfolio(n_stations=3)
-                    print("⚠ Timeout mock was not triggered")
+                    print("Timeout mock was not triggered")
                 except TimeoutError:
-                    print("✓ Model detected solver timeout")
+                    print("Model detected solver timeout")
                     # Test fallback behavior
                     # In a real implementation, you might fall back to a simpler method
                     fallback_result = model.candidates.nlargest(3, 'npv_proxy').index.tolist()
-                    print(f"✓ Fallback to greedy selection: {len(fallback_result)} candidates")
+                    print(f"Fallback to greedy selection: {len(fallback_result)} candidates")
                 finally:
                     # Restore original method
                     if original_method:
@@ -699,12 +699,12 @@ class TestSystemFailureSimulation(unittest.TestCase):
             clean_candidates = extreme_candidates[finite_mask]
             
             if len(clean_candidates) > 0:
-                print(f"✓ Filtered out {len(extreme_candidates) - len(clean_candidates)} extreme values")
+                print(f" Filtered out {len(extreme_candidates) - len(clean_candidates)} extreme values")
                 
                 # Test that calculations still work
                 mean_npv = clean_candidates['npv_proxy'].mean()
                 std_npv = clean_candidates['npv_proxy'].std()
-                print(f"✓ Calculations completed: mean NPV = {mean_npv:.0f}, std = {std_npv:.0f}")
+                print(f"Calculations completed: mean NPV = {mean_npv:.0f}, std = {std_npv:.0f}")
             else:
                 print("⚠ All values were extreme - no valid data remaining")
                 failure_scenarios.append("numerical_instability")
@@ -822,21 +822,21 @@ class TestSystemFailureSimulation(unittest.TestCase):
                 # Remove very short segments
                 if len(short_segments) > 0:
                     model.routes = model.routes[model.routes.geometry.length >= min_length_threshold]
-                    print(f"✓ Removed {len(short_segments)} very short segments")
+                    print(f"Removed {len(short_segments)} very short segments")
                     
                 # Remove zero flow segments
                 if len(zero_flow_segments) > 0:
                     model.routes = model.routes[model.routes['tot_truck_aadt'] > 0]
-                    print(f"✓ Removed {len(zero_flow_segments)} zero flow segments")
+                    print(f"Removed {len(zero_flow_segments)} zero flow segments")
                     
             else:
-                print("✓ No significant network connectivity issues detected")
+                print("No significant network connectivity issues detected")
                 
-            print(f"✓ Final network: {len(model.routes)} segments")
+            print(f"Final network: {len(model.routes)} segments")
             return True
             
         except Exception as e:
-            print(f"✗ Network connectivity analysis failed: {e}")
+            print(f"Network connectivity analysis failed: {e}")
             return False
 
 
@@ -879,13 +879,13 @@ def run_error_simulation_tests():
     print("-" * 40)
     
     if success_rate >= 90:
-        print("✓ EXCELLENT: Model shows high resilience to data quality issues")
+        print("EXCELLENT: Model shows high resilience to data quality issues")
     elif success_rate >= 75:
-        print("⚠ GOOD: Model handles most error conditions well")
+        print("GOOD: Model handles most error conditions well")
     elif success_rate >= 60:
-        print("⚠ MODERATE: Model has some resilience but needs improvement")
+        print("MODERATE: Model has some resilience but needs improvement")
     else:
-        print("✗ POOR: Model needs significant robustness improvements")
+        print("POOR: Model needs significant robustness improvements")
         
     print("\nRECOMMENDations FOR PRODUCTION:")
     print("-" * 40)
@@ -907,11 +907,11 @@ if __name__ == '__main__':
     print(f"\nError simulation completion: {passed}/{total} tests passed")
     
     if passed == total:
-        print("🎉 ALL ERROR SIMULATION TESTS PASSED - EXCELLENT RESILIENCE!")
+        print(" ALL ERROR SIMULATION TESTS PASSED - EXCELLENT RESILIENCE!")
         sys.exit(0)
     elif passed / total >= 0.8:
-        print("⚠️ Good resilience with some areas for improvement")
+        print("Pass: Good resilience with some areas for improvement")
         sys.exit(1)
     else:
-        print("❌ Significant resilience issues detected")
+        print("Fail: Significant resilience issues detected")
         sys.exit(2)
