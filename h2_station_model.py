@@ -1894,7 +1894,7 @@ class H2StationSitingModel:
         print("\n    Validation Summary:")
         for key, value in validation_results.items():
             if 'reasonable' in key and isinstance(value, bool):
-                status = "✓ PASS" if value else "✗ FAIL"
+                status = " PASS" if value else "✗ FAIL"
                 print(f"      {key}: {status}")
         
         return validation_results
@@ -2136,13 +2136,13 @@ class H2StationSitingModel:
             summary_text = "Validation Results:\n"
             
             if 'max_demand_reasonable' in val:
-                summary_text += f"✓ Max demand check: {'PASS' if val['max_demand_reasonable'] else 'FAIL'}\n"
+                summary_text += f" Max demand check: {'PASS' if val['max_demand_reasonable'] else 'FAIL'}\n"
             if 'coverage_reasonable' in val:
-                summary_text += f"✓ Coverage check: {'PASS' if val['coverage_reasonable'] else 'FAIL'}\n"
+                summary_text += f" Coverage check: {'PASS' if val['coverage_reasonable'] else 'FAIL'}\n"
             if 'route_proximity_reasonable' in val:
-                summary_text += f"✓ Route proximity: {'PASS' if val['route_proximity_reasonable'] else 'FAIL'}\n"
+                summary_text += f" Route proximity: {'PASS' if val['route_proximity_reasonable'] else 'FAIL'}\n"
             if 'gas_correlation_reasonable' in val:
-                summary_text += f"✓ Gas correlation: {'PASS' if val['gas_correlation_reasonable'] else 'FAIL'}\n"
+                summary_text += f" Gas correlation: {'PASS' if val['gas_correlation_reasonable'] else 'FAIL'}\n"
             
             fig.text(0.98, 0.02, summary_text, transform=fig.transFigure,
                     fontsize=10, ha='right', va='bottom',
@@ -2467,13 +2467,13 @@ class H2StationSitingModel:
         if corr is None:
             return "No data"
         elif corr > 0.7:
-            return "✓ Very Strong - Excellent market signal alignment"
+            return "Very Strong - Excellent market signal alignment"
         elif corr > 0.5:
-            return "✓ Good - Strong market signal alignment"
+            return "Good - Strong market signal alignment"
         elif corr > 0.3:
-            return "◐ Moderate - Reasonable alignment"
+            return "Moderate - Reasonable alignment"
         else:
-            return "✗ Weak - Poor alignment (may indicate new market)"
+            return "Weak - Poor alignment (may indicate new market)"
 
 
     def _identify_underserved_areas(self):
