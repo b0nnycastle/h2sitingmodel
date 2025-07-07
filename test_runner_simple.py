@@ -23,29 +23,29 @@ def test_basic_imports():
     try:
         from h2_station_model import H2StationSitingModel
         model = H2StationSitingModel()
-        print("✓ H2StationSitingModel import and initialization")
+        print("Pass: H2StationSitingModel import and initialization")
         results.append(("H2StationSitingModel", True, None))
     except Exception as e:
-        print(f"✗ H2StationSitingModel import failed: {e}")
+        print(f"Fail: H2StationSitingModel import failed: {e}")
         results.append(("H2StationSitingModel", False, str(e)))
     
     # Test quick setup import (without execution)
     try:
         import h2_station_quick_setup
-        print("✓ h2_station_quick_setup import")
+        print("Pass: h2_station_quick_setup import")
         results.append(("h2_station_quick_setup", True, None))
     except Exception as e:
-        print(f"✗ h2_station_quick_setup import failed: {e}")
+        print(f"Fail: h2_station_quick_setup import failed: {e}")
         results.append(("h2_station_quick_setup", False, str(e)))
     
     # Test test fixtures
     try:
         from test_fixtures import TestDataGenerator, TestFileManager
         generator = TestDataGenerator()
-        print("✓ test_fixtures import")
+        print("Pass: test_fixtures import")
         results.append(("test_fixtures", True, None))
     except Exception as e:
-        print(f"✗ test_fixtures import failed: {e}")
+        print(f"Fail: test_fixtures import failed: {e}")
         results.append(("test_fixtures", False, str(e)))
     
     return results
@@ -63,27 +63,27 @@ def test_data_generation():
         
         # Test route generation
         routes = generator.generate_california_routes(n_routes=5)
-        print(f"✓ Generated {len(routes)} test routes")
+        print(f"Pass: Generated {len(routes)} test routes")
         results.append(("route_generation", True, f"{len(routes)} routes"))
         
         # Test LOI generation
         lois = generator.generate_california_lois(n_lois=3)
-        print(f"✓ Generated {len(lois)} test LOIs")
+        print(f"Pass: Generated {len(lois)} test LOIs")
         results.append(("loi_generation", True, f"{len(lois)} LOIs"))
         
         # Test file management
         temp_dir = file_manager.create_temp_dir()
         test_file = file_manager.save_test_data(routes, "test_routes.geojson", temp_dir)
-        print(f"✓ Saved test data to {test_file}")
+        print(f"Pass: Saved test data to {test_file}")
         results.append(("file_management", True, "Files saved"))
         
         # Cleanup
         file_manager.cleanup()
-        print("✓ Cleanup completed")
+        print("Pass: Cleanup completed")
         results.append(("cleanup", True, "Completed"))
         
     except Exception as e:
-        print(f"✗ Data generation failed: {e}")
+        print(f"Fail: Data generation failed: {e}")
         results.append(("data_generation", False, str(e)))
         
     return results
@@ -98,7 +98,7 @@ def test_model_initialization():
         
         # Test default initialization
         model1 = H2StationSitingModel()
-        print("✓ Default model initialization")
+        print("Pass: Default model initialization")
         results.append(("default_init", True, "Success"))
         
         # Test custom configuration
@@ -109,17 +109,17 @@ def test_model_initialization():
             'h2_price_per_kg': 30.0
         }
         model2 = H2StationSitingModel(custom_config)
-        print("✓ Custom model initialization")
+        print("Pass: Custom model initialization")
         results.append(("custom_init", True, "Success"))
         
         # Test configuration validation
         assert model2.config['model_name'] == 'TestModel'
         assert model2.config['service_radius_miles'] == 3.0
-        print("✓ Configuration validation")
+        print("Pass: Configuration validation")
         results.append(("config_validation", True, "Success"))
         
     except Exception as e:
-        print(f"✗ Model initialization failed: {e}")
+        print(f"Fail: Model initialization failed: {e}")
         results.append(("model_initialization", False, str(e)))
         
     return results
@@ -143,22 +143,22 @@ def test_spatial_operations():
         gdf_points = gpd.GeoDataFrame({'id': range(5)}, geometry=points, crs="EPSG:4326")
         gdf_lines = gpd.GeoDataFrame({'id': range(3)}, geometry=lines, crs="EPSG:4326")
         
-        print(f"✓ Created {len(gdf_points)} point geometries")
-        print(f"✓ Created {len(gdf_lines)} line geometries")
+        print(f"Pass: Created {len(gdf_points)} point geometries")
+        print(f"Pass: Created {len(gdf_lines)} line geometries")
         results.append(("geometry_creation", True, f"{len(gdf_points)} points, {len(gdf_lines)} lines"))
         
         # Test coordinate system conversion
         gdf_projected = gdf_points.to_crs("EPSG:3310")
-        print("✓ Coordinate system conversion")
+        print("Pass: Coordinate system conversion")
         results.append(("crs_conversion", True, "EPSG:4326 to EPSG:3310"))
         
         # Test spatial operations
         distances = gdf_points.geometry.distance(Point(2, 2))
-        print(f"✓ Distance calculations (max: {distances.max():.2f})")
+        print(f"Pass: Distance calculations (max: {distances.max():.2f})")
         results.append(("distance_calc", True, f"Max distance: {distances.max():.2f}"))
         
     except Exception as e:
-        print(f"✗ Spatial operations failed: {e}")
+        print(f"Fail: Spatial operations failed: {e}")
         results.append(("spatial_operations", False, str(e)))
         
     return results
@@ -179,7 +179,7 @@ def test_loi_workflow_functions():
         assert tot_col == 'tot_truck_aadt'
         assert ab_col == 'truck_aadt_ab'
         assert ba_col == 'truck_aadt_ba'
-        print("✓ Flow column detection")
+        print("Pass: Flow column detection")
         results.append(("flow_detection", True, "Columns detected correctly"))
         
         # Test geometry bounds
@@ -187,7 +187,7 @@ def test_loi_workflow_functions():
         point = Point(0, 0)
         bounds = workflow.get_geometry_bounds(point)
         assert len(bounds) == 4
-        print("✓ Geometry bounds calculation")
+        print("Pass: Geometry bounds calculation")
         results.append(("geometry_bounds", True, "Bounds calculated"))
         
     except Exception as e:
@@ -209,7 +209,7 @@ def test_quick_setup_functions():
         next_version = quick_setup.get_next_version_dir(test_base)
         expected = f"{test_base}_v1"
         assert next_version == expected
-        print("✓ Version directory generation")
+        print("Pass: Version directory generation")
         results.append(("version_dir", True, f"Generated: {next_version}"))
         
         # Test mock model creation for save_iteration_results
@@ -221,11 +221,11 @@ def test_quick_setup_functions():
         
         temp_dir = tempfile.mkdtemp()
         result_dir = quick_setup.save_iteration_results(mock_model, temp_dir)
-        print("✓ Iteration results saving")
+        print("Pass: Iteration results saving")
         results.append(("iteration_results", True, f"Saved to: {result_dir}"))
         
     except Exception as e:
-        print(f"✗ Quick setup functions failed: {e}")
+        print(f"Fail: Quick setup functions failed: {e}")
         results.append(("quick_setup", False, str(e)))
         
     return results
@@ -257,7 +257,7 @@ def run_comprehensive_tests():
             suite_results = test_func()
             all_results.extend(suite_results)
         except Exception as e:
-            print(f"✗ {suite_name} test suite failed: {e}")
+            print(f"Flag: {suite_name} test suite failed: {e}")
             all_results.append((suite_name, False, str(e)))
     
     return all_results
@@ -293,10 +293,10 @@ def print_summary(results):
         print("🎉 ALL TESTS PASSED!")
         return 0
     elif passed_tests / total_tests >= 0.75:
-        print("⚠️  Most tests passed, some issues to address")
+        print("Pass:  Most tests passed, some issues to address")
         return 1
     else:
-        print("❌ Significant test failures detected")
+        print("Flag: Significant test failures detected")
         return 2
 
 def main():
