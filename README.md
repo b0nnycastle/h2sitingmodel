@@ -43,31 +43,38 @@ pip install -r requirements.txt
 
 # Run quick analysis
 python h2_station_quick_setup.py
+```
 
-Usage
-Basic Usage
+###  Usage
+### Basic Usage
 
 from h2_station_model import H2StationSitingModel
 
 # Initialize model with default configuration
+```
 model = H2StationSitingModel()
+```
 
 # Load data
+```
 model.load_data(
     route_file='data/combined_network.geojson',
     loi_files=['data/gas_stations.csv', 'data/rest_areas.csv'],
     existing_stations='data/existing_h2_stations.csv'
 )
+```
 
 # Generate candidates and run analysis
+```
 model.generate_candidates(strategy='hybrid')
 model.calculate_utilization_probability()
 model.run_iterative_station_selection(max_stations=50)
+```
 
+## Advanced Configuration
 
-Advanced Configuration
-
-Custom configuration
+# Custom configuration
+```
 custom_config = {
     'h2_price_per_kg': 28.50,
     'station_capacity_kg_per_day': 2000,
@@ -76,9 +83,10 @@ custom_config = {
 }
 
 model = H2StationSitingModel(config=custom_config)
+```
+## Data Requirements
 
-Data Requirements
-Input Data Formats
+### Input Data Formats
 
 Route Network (GeoJSON/Shapefile)
 
@@ -99,8 +107,9 @@ Optional fields: name, operator, commission_date
 
 
 
-See data/README.md for detailed data specifications.
-Model Components
+# See data/README.md for detailed data specifications.
+
+## Model Components
 1. Demand Estimation
 
 Kernel density estimation with configurable bandwidth
@@ -125,7 +134,7 @@ Iterative greedy selection with look-ahead
 Mixed-integer linear programming (MILP) option
 Multi-objective optimization capabilities
 
-Output Files
+## Output Files
 The model generates comprehensive outputs in the specified directory:
 
 output/
@@ -146,11 +155,12 @@ output/
 
 
 
-Contributing
+## Contributing
 We welcome contributions! Please see CONTRIBUTING.md for guidelines.
 Citation
 If you use this model in your research, please cite:
 
+```
 @software{
   h2_station_siting_model,
   title = {H2 Station Siting Model: Optimization for Hydrogen Infrastructure},
@@ -158,15 +168,16 @@ If you use this model in your research, please cite:
   year = {2025},
   url = {https://github.com/b0nnyCastle/h2-station-siting}
 }
+```
 
-
-License
+## License
 This project is licensed under the MIT License - see LICENSE file for details.
-Acknowledgments
+
+## Acknowledgments
 
 [Placeholder: Funding Agency]
 [Placeholder: Data Provider Organizations]
 [Prof. Sally Benson]
 
-Contact
+## Contact
 For questions or support, please open an issue or contact [fayoola@alumni.stanford.edu].
