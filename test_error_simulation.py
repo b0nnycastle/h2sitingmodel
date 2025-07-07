@@ -70,7 +70,7 @@ class TestDataQualityIssues(unittest.TestCase):
                 # Simulate CRS assignment
                 model.routes.set_crs("EPSG:4326", inplace=True)
                 model.routes = model.routes.to_crs("EPSG:3310")
-                print("✓ Model assigned default CRS and converted to target projection")
+                print("Pass: Model assigned default CRS and converted to target projection")
             
             success = True
         except Exception as e:
@@ -328,7 +328,7 @@ class TestDataQualityIssues(unittest.TestCase):
             x_median = np.median(x_magnitudes)
             y_median = np.median(y_magnitudes)
             
-            print(f"✓ Coordinate magnitude analysis:")
+            print(f" Coordinate magnitude analysis:")
             print(f"  X median: {x_median:,.0f}")
             print(f"  Y median: {y_median:,.0f}")
             
@@ -516,10 +516,10 @@ class TestSystemFailureSimulation(unittest.TestCase):
                     print(f"  Pass: Cleaned up memory-intensive columns")
                     
             except MemoryError:
-                print(f"  ✗ Memory error at size {size}")
+                print(f"  Fail: Memory error at size {size}")
                 break
             except Exception as e:
-                print(f"  ✗ Error at size {size}: {e}")
+                print(f"  Fail: Error at size {size}: {e}")
                 break
                 
         return True
@@ -646,7 +646,7 @@ class TestSystemFailureSimulation(unittest.TestCase):
                 print("Flag: No optimize_portfolio method available")
                 
         except Exception as e:
-            print(f"⚠ Infeasible problem error: {e}")
+            print(f"Fail: Infeasible problem error: {e}")
             failure_scenarios.append("infeasible_problem")
             
         # 2. Test solver timeout simulation
@@ -679,7 +679,7 @@ class TestSystemFailureSimulation(unittest.TestCase):
                         model.optimize_portfolio = original_method
                         
         except Exception as e:
-            print(f"⚠ Solver timeout test error: {e}")
+            print(f"Fail: Solver timeout test error: {e}")
             failure_scenarios.append("solver_timeout")
             
         # 3. Test numerical instability
@@ -706,7 +706,7 @@ class TestSystemFailureSimulation(unittest.TestCase):
                 std_npv = clean_candidates['npv_proxy'].std()
                 print(f"Calculations completed: mean NPV = {mean_npv:.0f}, std = {std_npv:.0f}")
             else:
-                print("⚠ All values were extreme - no valid data remaining")
+                print("Fail: All values were extreme - no valid data remaining")
                 failure_scenarios.append("numerical_instability")
                 
         except Exception as e:
